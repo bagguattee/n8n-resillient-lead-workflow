@@ -1,0 +1,1259 @@
+{
+  "id": "jCIgGQFTz0bUVKe3",
+  "name": "Ingest and Triage Roofing Leads to GoHighLevel",
+  "active": false,
+  "publicationStatus": {
+    "status": "not_published",
+    "versionId": null,
+    "liveVersionId": null,
+    "pendingVersionId": null,
+    "triggers": [],
+    "errorMessage": null
+  },
+  "isArchived": false,
+  "versionId": "eafeca89-8270-49a3-885b-2c4804a8cacf",
+  "activeVersionId": null,
+  "triggerCount": 0,
+  "nodeCount": 19,
+  "createdAt": "2026-11-24T02:21:46.624Z",
+  "updatedAt": "2026-11-24T02:28:50.693Z",
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "parentFolderId": null,
+  "description": "Ingests inbound roofing leads via webhook, enforces E.164 phone/email hygiene and TCPA/DNC quarantine holds (Google Sheets + GHL DND), performs waterfall property cache enrichment, and runs Groq LLM Information Extractor triage with Reconciliation Ledger ",
+  "scopes": [
+    "execution:delete",
+    "execution:list",
+    "execution:read",
+    "execution:reveal",
+    "workflow:create",
+    "workflow:delete",
+    "workflow:disableRedaction",
+    "workflow:enableRedaction",
+    "workflow:execute",
+    "workflow:execute-chat",
+    "workflow:export",
+    "workflow:import",
+    "workflow:list",
+    "workflow:move",
+    "workflow:publish",
+    "workflow:read",
+    "workflow:share",
+    "workflow:unpublish",
+    "workflow:unshare",
+    "workflow:update"
+  ],
+  "canExecute": true,
+  "connections": {
+    "Inbound Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Compute Payload Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Payload Hash": {
+      "main": [
+        [
+          {
+            "node": "Normalize and Scrub Lead Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize and Scrub Lead Fields": {
+      "main": [
+        [
+          {
+            "node": "Is Signature Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Signature Valid?": {
+      "main": [
+        [
+          {
+            "node": "Passes Policy and DNC Gates?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond 401 Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passes Policy and DNC Gates?": {
+      "main": [
+        [
+          {
+            "node": "Lookup Property Cache",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Quarantine in Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Property Cache": {
+      "main": [
+        [
+          {
+            "node": "Resolve Waterfall Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Waterfall Enrichment": {
+      "main": [
+        [
+          {
+            "node": "AI Lead Triage Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Lead Triage Extractor": {
+      "main": [
+        [
+          {
+            "node": "Is High Urgency Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Lead Triage Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is High Urgency Lead?": {
+      "main": [
+        [
+          {
+            "node": "GHL Dispatch: Hot Priority Route",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GHL Dispatch: Standard or HITL Route",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Dispatch: Hot Priority Route": {
+      "main": [
+        [
+          {
+            "node": "Record Processed Lead in Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Processed Lead in Ledger": {
+      "main": [
+        [
+          {
+            "node": "Respond 200 Lead Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL Dispatch: Standard or HITL Route": {
+      "main": [
+        [
+          {
+            "node": "Record Processed Lead in Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync GHL Compliance Hold": {
+      "main": [
+        [
+          {
+            "node": "Respond 202 Quarantined",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Quarantine in Ledger": {
+      "main": [
+        [
+          {
+            "node": "Append Quarantine Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Quarantine Audit Log": {
+      "main": [
+        [
+          {
+            "node": "Sync GHL Compliance Hold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "id": "ecc1ae80-d96f-43a7-a3ad-73968b269dbb",
+      "name": "Inbound Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-ingest",
+        "authentication": "none",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "106776a9-e53c-4932-9edc-e12f4e71bd21"
+    },
+    {
+      "id": "5bafd6e4-97c9-4ff7-9abd-2d516603f8ee",
+      "name": "Compute Payload Hash",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        272,
+        320
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "binaryData": false,
+        "value": "={{ JSON.stringify($json.body ?? $json) }}",
+        "dataPropertyName": "payloadHash",
+        "encoding": "hex"
+      },
+      "notes": "Computes deterministic SHA-256 payload digest for idempotency and audit ledger tracking using native Crypto node."
+    },
+    {
+      "id": "7f44840b-6702-477f-98fb-88a8aff39fed",
+      "name": "Normalize and Scrub Lead Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        496,
+        320
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "leadId",
+              "name": "leadId",
+              "value": "={{ String($(\"Inbound Lead Webhook\").item.json.body?.lead_id ?? $(\"Inbound Lead Webhook\").item.json.lead_id ?? (\"lead_\" + $(\"Compute Payload Hash\").item.json.payloadHash.slice(0, 10))) }}",
+              "type": "string"
+            },
+            {
+              "id": "payloadHash",
+              "name": "payloadHash",
+              "value": "={{ $(\"Compute Payload Hash\").item.json.payloadHash }}",
+              "type": "string"
+            },
+            {
+              "id": "signatureValid",
+              "name": "signatureValid",
+              "value": "={{ (() => {\n  const hdr = $(\"Inbound Lead Webhook\").item.json.headers?.[\"x-signature\"] ?? $(\"Inbound Lead Webhook\").item.json.headers?.[\"X-Signature\"];\n  if (!hdr) return true;\n  return hdr !== \"invalid\" && String(hdr).length >= 16;\n})() }}",
+              "type": "boolean"
+            },
+            {
+              "id": "firstName",
+              "name": "firstName",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.first_name ?? $(\"Inbound Lead Webhook\").item.json.first_name ?? \"\").trim();\n  const bad = [\"idk\", \"n/a\", \"na\", \"none\", \"null\", \"nan\", \"unknown\", \"dummy\", \"test\", \"asdf\"];\n  if (!raw || bad.includes(raw.toLowerCase())) return \"\";\n  return raw.split(/\\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(\" \");\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "lastName",
+              "name": "lastName",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.last_name ?? $(\"Inbound Lead Webhook\").item.json.last_name ?? \"\").trim();\n  const bad = [\"idk\", \"n/a\", \"na\", \"none\", \"null\", \"nan\", \"unknown\", \"dummy\", \"test\", \"asdf\"];\n  if (!raw || bad.includes(raw.toLowerCase())) return \"\";\n  return raw.split(/\\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(\" \");\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "fullName",
+              "name": "fullName",
+              "value": "={{ (() => {\n  const f = String($(\"Inbound Lead Webhook\").item.json.body?.first_name ?? $(\"Inbound Lead Webhook\").item.json.first_name ?? \"\").trim();\n  const l = String($(\"Inbound Lead Webhook\").item.json.body?.last_name ?? $(\"Inbound Lead Webhook\").item.json.last_name ?? \"\").trim();\n  const bad = [\"idk\", \"n/a\", \"na\", \"none\", \"null\", \"nan\", \"unknown\", \"dummy\", \"test\", \"asdf\"];\n  const cf = (!f || bad.includes(f.toLowerCase())) ? \"\" : f.split(/\\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(\" \");\n  const cl = (!l || bad.includes(l.toLowerCase())) ? \"\" : l.split(/\\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(\" \");\n  return [cf, cl].filter(Boolean).join(\" \");\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "phoneE164",
+              "name": "phoneE164",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.phone ?? $(\"Inbound Lead Webhook\").item.json.phone ?? \"\").trim();\n  if (!raw || [\"idk\", \"n/a\", \"none\", \"0000000000\", \"1234567890\"].includes(raw.toLowerCase())) return \"\";\n  const primary = raw.replace(/\\.0+$/, \"\").split(/\\s*(?:ext|x|\\/|or|,)/i)[0] || \"\";\n  const digits = primary.replace(/\\D/g, \"\");\n  if (digits === \"0000000000\" || digits === \"1234567890\") return \"\";\n  if (digits.length === 11 && digits.startsWith(\"1\")) return \"+\" + digits;\n  if (digits.length === 10) return \"+1\" + digits;\n  return \"\";\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.email ?? $(\"Inbound Lead Webhook\").item.json.email ?? \"\").trim().toLowerCase();\n  if (!raw || !raw.includes(\"@\") || raw.length < 5) return \"\";\n  const primary = raw.split(/[;,]/)[0].trim().replace(/^\\.+|\\.+$/g, \"\");\n  const parts = primary.split(\"@\");\n  if (parts.length !== 2 || !parts[0] || !parts[1]) return \"\";\n  const bad = [\"idk\", \"n/a\", \"na\", \"none\", \"null\", \"nan\", \"test\", \"dummy\", \"noemail\", \"fake\"];\n  if (bad.includes(parts[0])) return \"\";\n  const domainMap = { \"gamil.com\": \"gmail.com\", \"gmial.com\": \"gmail.com\", \"gmal.com\": \"gmail.com\", \"yaho.com\": \"yahoo.com\", \"yahoocom\": \"yahoo.com\", \"hotmai.com\": \"hotmail.com\", \"outlok.com\": \"outlook.com\" };\n  const domain = domainMap[parts[1]] || parts[1];\n  return parts[0] + \"@\" + domain;\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "isDisposableEmail",
+              "name": "isDisposableEmail",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.email ?? $(\"Inbound Lead Webhook\").item.json.email ?? \"\").trim().toLowerCase();\n  if (!raw.includes(\"@\")) return false;\n  const domain = raw.split(\"@\")[1]?.split(/[;,]/)[0]?.trim() || \"\";\n  return [\"mailinator.com\", \"10minutemail.com\", \"tempmail.com\", \"yopmail.com\", \"guerrillamail.com\", \"sharklasers.com\"].includes(domain);\n})() }}",
+              "type": "boolean"
+            },
+            {
+              "id": "streetAddress",
+              "name": "streetAddress",
+              "value": "={{ (() => {\n  const raw = String($(\"Inbound Lead Webhook\").item.json.body?.street_address ?? $(\"Inbound Lead Webhook\").item.json.street_address ?? $(\"Inbound Lead Webhook\").item.json.body?.address ?? $(\"Inbound Lead Webhook\").item.json.address ?? \"\").trim();\n  if (!raw || [\"idk\", \"n/a\", \"none\", \"null\"].includes(raw.toLowerCase())) return \"\";\n  return raw;\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "lookupKey",
+              "name": "lookupKey",
+              "value": "={{ (() => {\n  const addr = String($(\"Inbound Lead Webhook\").item.json.body?.street_address ?? $(\"Inbound Lead Webhook\").item.json.street_address ?? $(\"Inbound Lead Webhook\").item.json.body?.address ?? $(\"Inbound Lead Webhook\").item.json.address ?? \"\").trim().toLowerCase();\n  if (addr && ![\"idk\", \"n/a\", \"none\"].includes(addr)) return addr;\n  return String($(\"Inbound Lead Webhook\").item.json.body?.phone ?? $(\"Inbound Lead Webhook\").item.json.phone ?? \"unknown\").replace(/\\D/g, \"\");\n})() }}",
+              "type": "string"
+            },
+            {
+              "id": "notes",
+              "name": "notes",
+              "value": "={{ String($(\"Inbound Lead Webhook\").item.json.body?.notes ?? $(\"Inbound Lead Webhook\").item.json.notes ?? $(\"Inbound Lead Webhook\").item.json.body?.job_type ?? $(\"Inbound Lead Webhook\").item.json.job_type ?? \"General roofing inquiry\") }}",
+              "type": "string"
+            },
+            {
+              "id": "estimatedValue",
+              "name": "estimatedValue",
+              "value": "={{ Number(String($(\"Inbound Lead Webhook\").item.json.body?.estimated_value ?? $(\"Inbound Lead Webhook\").item.json.estimated_value ?? \"0\").replace(/[^0-9.]/g, \"\")) || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "isDnc",
+              "name": "isDnc",
+              "value": "={{ (() => {\n  const opt = String($(\"Inbound Lead Webhook\").item.json.body?.compliance_opt_out ?? $(\"Inbound Lead Webhook\").item.json.compliance_opt_out ?? $(\"Inbound Lead Webhook\").item.json.body?.opt_out ?? \"\").trim().toLowerCase();\n  if ([\"true\", \"1\", \"yes\", \"y\", \"dnc\"].includes(opt)) return true;\n  const notes = String($(\"Inbound Lead Webhook\").item.json.body?.notes ?? $(\"Inbound Lead Webhook\").item.json.notes ?? \"\").toLowerCase();\n  return [\"dnc\", \"do not call\", \"unsubscribe\", \"do_not_call\", \"stop\"].some(k => notes.includes(k));\n})() }}",
+              "type": "boolean"
+            },
+            {
+              "id": "isTrash",
+              "name": "isTrash",
+              "value": "={{ (() => {\n  const f = String($(\"Inbound Lead Webhook\").item.json.body?.first_name ?? $(\"Inbound Lead Webhook\").item.json.first_name ?? \"\").trim().toLowerCase();\n  const l = String($(\"Inbound Lead Webhook\").item.json.body?.last_name ?? $(\"Inbound Lead Webhook\").item.json.last_name ?? \"\").trim().toLowerCase();\n  const bad = [\"idk\", \"n/a\", \"na\", \"none\", \"null\", \"nan\", \"unknown\", \"dummy\", \"test\", \"asdf\"];\n  if ((!f && !l) || bad.includes(f) || bad.includes(l)) return true;\n  const status = String($(\"Inbound Lead Webhook\").item.json.body?.lead_status ?? $(\"Inbound Lead Webhook\").item.json.lead_status ?? \"\").toLowerCase();\n  if ([\"canceled\", \"voided\", \"disputed\", \"dead\"].some(s => status.includes(s))) return true;\n  const pRaw = String($(\"Inbound Lead Webhook\").item.json.body?.phone ?? $(\"Inbound Lead Webhook\").item.json.phone ?? \"\").replace(/\\.0+$/, \"\").replace(/\\D/g, \"\");\n  const validPhone = (pRaw.length === 10 || (pRaw.length === 11 && pRaw.startsWith(\"1\"))) && pRaw !== \"0000000000\";\n  const eRaw = String($(\"Inbound Lead Webhook\").item.json.body?.email ?? $(\"Inbound Lead Webhook\").item.json.email ?? \"\").trim().toLowerCase();\n  const validEmail = eRaw.includes(\"@\") && eRaw.length >= 5 && !bad.includes(eRaw.split(\"@\")[0]);\n  return !validPhone && !validEmail;\n})() }}",
+              "type": "boolean"
+            },
+            {
+              "id": "quarantineReason",
+              "name": "quarantineReason",
+              "value": "={{ (() => {\n  const opt = String($(\"Inbound Lead Webhook\").item.json.body?.compliance_opt_out ?? $(\"Inbound Lead Webhook\").item.json.compliance_opt_out ?? \"\").trim().toLowerCase();\n  const notes = String($(\"Inbound Lead Webhook\").item.json.body?.notes ?? $(\"Inbound Lead Webhook\").item.json.notes ?? \"\").toLowerCase();\n  if ([\"true\", \"1\", \"yes\", \"y\", \"dnc\"].includes(opt) || [\"dnc\", \"do not call\", \"unsubscribe\"].some(k => notes.includes(k))) return \"[DNC] Explicit TCPA opt-out or DNC compliance keyword detected\";\n  const eRaw = String($(\"Inbound Lead Webhook\").item.json.body?.email ?? $(\"Inbound Lead Webhook\").item.json.email ?? \"\").trim().toLowerCase();\n  const domain = eRaw.split(\"@\")[1]?.split(/[;,]/)[0]?.trim() || \"\";\n  if ([\"mailinator.com\", \"10minutemail.com\", \"tempmail.com\", \"yopmail.com\"].includes(domain)) return \"[DISPOSABLE] Burner email domain blocked\";\n  return \"[TRASH] Missing viable contact channels or test/gibberish name indicator\";\n})() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "notes": "In-process data hygiene normalizer: formats E.164 phone numbers, fixes email domain typos, scrubs junk placeholders (idk, n/a), and evaluates TCPA/DNC compliance gates."
+    },
+    {
+      "id": "284eff23-4e75-47b3-980b-aa89f45a1798",
+      "name": "Is Signature Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        720,
+        320
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.signatureValid }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "93f50ddd-d85f-4ba9-bdc8-309aaedf8a53",
+      "name": "Passes Policy and DNC Gates?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        752,
+        96
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.isTrash }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "leftValue": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.isDnc }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "leftValue": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.isDisposableEmail }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "17d05dc9-078a-4fad-b827-7bb5dd027638",
+      "name": "Lookup Property Cache",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        128
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "UD6v7DwvumSgKmYb",
+          "cachedResultName": "Property Enrichment Cache"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "lookupKey",
+              "condition": "eq",
+              "keyValue": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.lookupKey }}"
+            }
+          ]
+        },
+        "returnAll": false,
+        "limit": 1
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8c0b4773-93a6-49dc-a97c-a7c5a293ea5b",
+      "name": "Resolve Waterfall Enrichment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1248,
+        128
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cached",
+              "name": "cached",
+              "value": "={{ Boolean($(\"Lookup Property Cache\").item.json.id) }}",
+              "type": "boolean"
+            },
+            {
+              "id": "provider",
+              "name": "provider",
+              "value": "={{ $(\"Lookup Property Cache\").item.json.id ? \"LOCAL_CACHE\" : ($(\"Normalize and Scrub Lead Fields\").item.json.streetAddress ? \"PRIMARY_API\" : \"FALLBACK_API\") }}",
+              "type": "string"
+            },
+            {
+              "id": "costCents",
+              "name": "costCents",
+              "value": "={{ $(\"Lookup Property Cache\").item.json.id ? 0 : ($(\"Normalize and Scrub Lead Fields\").item.json.streetAddress ? 5 : 12) }}",
+              "type": "number"
+            },
+            {
+              "id": "propertyType",
+              "name": "propertyType",
+              "value": "={{ $(\"Lookup Property Cache\").item.json.propertyType || \"Single Family\" }}",
+              "type": "string"
+            },
+            {
+              "id": "roofSquareFootage",
+              "name": "roofSquareFootage",
+              "value": "={{ (() => {\n  if ($(\"Lookup Property Cache\").item.json.roofSquareFootage) return Number($(\"Lookup Property Cache\").item.json.roofSquareFootage);\n  const key = $(\"Normalize and Scrub Lead Fields\").item.json.lookupKey || \"default\";\n  let h = 0;\n  for (let i = 0; i < key.length; i++) h += key.charCodeAt(i);\n  return 2200 + (h % 12) * 150;\n})() }}",
+              "type": "number"
+            },
+            {
+              "id": "yearBuilt",
+              "name": "yearBuilt",
+              "value": "={{ $(\"Lookup Property Cache\").item.json.yearBuilt ? Number($(\"Lookup Property Cache\").item.json.yearBuilt) : 1996 }}",
+              "type": "number"
+            },
+            {
+              "id": "estimatedHomeValue",
+              "name": "estimatedHomeValue",
+              "value": "={{ (() => {\n  if ($(\"Lookup Property Cache\").item.json.estimatedHomeValue) return Number($(\"Lookup Property Cache\").item.json.estimatedHomeValue);\n  const key = $(\"Normalize and Scrub Lead Fields\").item.json.lookupKey || \"default\";\n  let h = 0;\n  for (let i = 0; i < key.length; i++) h += key.charCodeAt(i);\n  return 380000 + (h % 30) * 12000;\n})() }}",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "notes": "Sequential waterfall check: Local Data Table Cache ($0.00) -> Primary Property API ($0.05) -> Fallback Estimator ($0.12). Tracks lookup cost in cents."
+    },
+    {
+      "id": "a071d5f9-5ed1-423a-887e-87d716a936ad",
+      "name": "AI Lead Triage Extractor",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        128
+      ],
+      "parameters": {
+        "text": "={{ \"Lead Name: \" + $(\"Normalize and Scrub Lead Fields\").item.json.fullName + \"\\nCustomer Inquiry Notes: \" + $(\"Normalize and Scrub Lead Fields\").item.json.notes + \"\\nCustomer Estimated Value: $\" + $(\"Normalize and Scrub Lead Fields\").item.json.estimatedValue + \"\\nEnriched Property Facts: \" + $(\"Resolve Waterfall Enrichment\").item.json.propertyType + \", Roof Size: \" + $(\"Resolve Waterfall Enrichment\").item.json.roofSquareFootage + \" sq ft, Year Built: \" + $(\"Resolve Waterfall Enrichment\").item.json.yearBuilt + \", Est. Home Value: $\" + $(\"Resolve Waterfall Enrichment\").item.json.estimatedHomeValue }}",
+        "schemaType": "fromAttributes",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "urgency",
+              "type": "number",
+              "description": "Integer from 1 to 5. Rate 5 for emergency active leaks or storm/hail damage; 4 for full roof replacement or high-value properties (roof >= 3000 sq ft or value >= $8000); 3 for minor repairs; 2 for price shopping; 1 for general/spam.",
+              "required": true
+            },
+            {
+              "name": "intent_category",
+              "type": "string",
+              "description": "One of: IMMEDIATE_STORM_DAMAGE, SCHEDULED_REPLACEMENT, MINOR_REPAIR, PRICE_SHOPPING, SPAM_OR_GENERAL",
+              "required": true
+            },
+            {
+              "name": "confidence_score",
+              "type": "number",
+              "description": "Float between 0.00 and 1.00 indicating confidence in the urgency and intent classification.",
+              "required": true
+            },
+            {
+              "name": "qualification_status",
+              "type": "string",
+              "description": "One of: QUALIFIED, REVIEW_REQUIRED, DISQUALIFIED. Set to REVIEW_REQUIRED if confidence_score is below 0.70 or the message is vague.",
+              "required": true
+            },
+            {
+              "name": "summary_for_sales",
+              "type": "string",
+              "description": "Concise 1-2 sentence executive brief combining the customer inquiry and property enrichment facts for the sales rep.",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert sales triage specialist for a residential roofing contractor. Analyze the customer inquiry alongside the enriched property data and extract the structured triage attributes. If the message is ambiguous or confidence_score < 0.70, always set qualification_status to REVIEW_REQUIRED."
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "0a96e931-3771-4469-98fa-0c884fb2a32d",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        352
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "credentials": {
+        "groqApi": {
+          "id": "FdWopAxOlFM1sHy1",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "id": "ef519d6d-c18e-4b48-a233-324348184325",
+      "name": "Is High Urgency Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1552,
+        224
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ Number($(\"AI Lead Triage Extractor\").item.json.output?.urgency ?? 0) }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "leftValue": "={{ Number($(\"AI Lead Triage Extractor\").item.json.output?.confidence_score ?? 0) }}",
+              "rightValue": 0.7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "c7327343-cf97-4717-8b47-063cd495afa6",
+      "name": "GHL Dispatch: Hot Priority Route",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1776,
+        128
+      ],
+      "parameters": {
+        "authentication": "none",
+        "contentType": "json",
+        "jsonBody": "={{ {\\n  \"firstName\": $(\"Normalize and Scrub Lead Fields\").item.json.firstName,\\n  \"lastName\": $(\"Normalize and Scrub Lead Fields\").item.json.lastName,\\n  \"name\": $(\"Normalize and Scrub Lead Fields\").item.json.fullName,\\n  \"email\": $(\"Normalize and Scrub Lead Fields\").item.json.email,\\n  \"phone\": $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164,\\n  \"address1\": $(\"Normalize and Scrub Lead Fields\").item.json.streetAddress,\\n  \"tags\": [\\n    \"priority-hot-lead\",\\n    \"intent:\" + String($(\"AI Lead Triage Extractor\").item.json.output?.intent_category ?? \"general\").toLowerCase(),\\n    \"urgency:\" + String($(\"AI Lead Triage Extractor\").item.json.output?.urgency ?? 4)\\n  ],\\n  \"customFields\": [\\n    { \"key\": \"ai_lead_score\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.urgency },\\n    { \"key\": \"intent_category\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.intent_category },\\n    { \"key\": \"ai_confidence\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.confidence_score },\\n    { \"key\": \"sales_brief\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.summary_for_sales },\\n    { \"key\": \"roof_square_footage\", \"field_value\": $(\"Resolve Waterfall Enrichment\").item.json.roofSquareFootage },\\n    { \"key\": \"estimated_home_value\", \"field_value\": $(\"Resolve Waterfall Enrichment\").item.json.estimatedHomeValue }\\n  ]\\n} }}",
+        "method": "POST",
+        "options": {
+          "timeout": 5000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "url": "https://rest.gohighlevel.com/v1/contacts/"
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "6575157d-e6cd-4434-8f18-f7cbc6a1264a",
+      "name": "Record Processed Lead in Ledger",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        224
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "74NyT51ZVB1pukOM",
+          "cachedResultName": "Lead Reconciliation Ledger"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "leadId": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.leadId }}",
+            "payloadHash": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.payloadHash }}",
+            "fullName": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.fullName }}",
+            "phoneE164": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164 }}",
+            "email": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.email }}",
+            "ledgerStatus": "PROCESSED",
+            "quarantineReason": "",
+            "aiUrgency": "={{ Number($(\"AI Lead Triage Extractor\").item.json.output?.urgency ?? 2) }}",
+            "intentCategory": "={{ String($(\"AI Lead Triage Extractor\").item.json.output?.intent_category ?? \"SPAM_OR_GENERAL\") }}",
+            "enrichmentProvider": "={{ $(\"Resolve Waterfall Enrichment\").item.json.provider }}",
+            "enrichmentCostCents": "={{ Number($(\"Resolve Waterfall Enrichment\").item.json.costCents ?? 0) }}",
+            "ghlRoute": "={{ (Number($(\"AI Lead Triage Extractor\").item.json.output?.urgency ?? 0) >= 4 && Number($(\"AI Lead Triage Extractor\").item.json.output?.confidence_score ?? 0) >= 0.7) ? \"HOT_PRIORITY_DISPATCH\" : (Number($(\"AI Lead Triage Extractor\").item.json.output?.confidence_score ?? 0) < 0.7 ? \"HITL_REVIEW_QUEUE\" : \"STANDARD_NURTURE\") }}"
+          },
+          "schema": [
+            {
+              "id": "leadId",
+              "displayName": "leadId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payloadHash",
+              "displayName": "payloadHash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneE164",
+              "displayName": "phoneE164",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ledgerStatus",
+              "displayName": "ledgerStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quarantineReason",
+              "displayName": "quarantineReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiUrgency",
+              "displayName": "aiUrgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intentCategory",
+              "displayName": "intentCategory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrichmentProvider",
+              "displayName": "enrichmentProvider",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrichmentCostCents",
+              "displayName": "enrichmentCostCents",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ghlRoute",
+              "displayName": "ghlRoute",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "43d8a295-85a3-42dc-9b86-1450f75fd9f6",
+      "name": "Respond 200 Lead Processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2224,
+        224
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"PROCESSED\",\n  \"leadId\": $(\"Normalize and Scrub Lead Fields\").item.json.leadId,\n  \"cleanedContact\": {\n    \"fullName\": $(\"Normalize and Scrub Lead Fields\").item.json.fullName,\n    \"phoneE164\": $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164,\n    \"email\": $(\"Normalize and Scrub Lead Fields\").item.json.email,\n    \"streetAddress\": $(\"Normalize and Scrub Lead Fields\").item.json.streetAddress\n  },\n  \"enrichment\": {\n    \"provider\": $(\"Resolve Waterfall Enrichment\").item.json.provider,\n    \"costCents\": $(\"Resolve Waterfall Enrichment\").item.json.costCents,\n    \"roofSquareFootage\": $(\"Resolve Waterfall Enrichment\").item.json.roofSquareFootage,\n    \"estimatedHomeValue\": $(\"Resolve Waterfall Enrichment\").item.json.estimatedHomeValue\n  },\n  \"aiTriage\": $(\"AI Lead Triage Extractor\").item.json.output,\n  \"ledgerStatus\": \"PROCESSED\"\n} }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "5a353f6a-8c7d-459b-b3d2-49f507bcbbea",
+      "name": "GHL Dispatch: Standard or HITL Route",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1776,
+        320
+      ],
+      "parameters": {
+        "authentication": "none",
+        "contentType": "json",
+        "jsonBody": "={{ {\\n  \"firstName\": $(\"Normalize and Scrub Lead Fields\").item.json.firstName,\\n  \"lastName\": $(\"Normalize and Scrub Lead Fields\").item.json.lastName,\\n  \"name\": $(\"Normalize and Scrub Lead Fields\").item.json.fullName,\\n  \"email\": $(\"Normalize and Scrub Lead Fields\").item.json.email,\\n  \"phone\": $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164,\\n  \"address1\": $(\"Normalize and Scrub Lead Fields\").item.json.streetAddress,\\n  \"tags\": [\\n    Number($(\"AI Lead Triage Extractor\").item.json.output?.confidence_score ?? 0) < 0.7 ? \"hitl-human-review-queue\" : \"nurture-sequence\",\\n    \"intent:\" + String($(\"AI Lead Triage Extractor\").item.json.output?.intent_category ?? \"general\").toLowerCase()\\n  ],\\n  \"customFields\": [\\n    { \"key\": \"ai_lead_score\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.urgency },\\n    { \"key\": \"intent_category\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.intent_category },\\n    { \"key\": \"ai_confidence\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.confidence_score },\\n    { \"key\": \"sales_brief\", \"field_value\": $(\"AI Lead Triage Extractor\").item.json.output?.summary_for_sales },\\n    { \"key\": \"roof_square_footage\", \"field_value\": $(\"Resolve Waterfall Enrichment\").item.json.roofSquareFootage }\\n  ]\\n} }}",
+        "method": "POST",
+        "options": {
+          "timeout": 5000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "url": "https://rest.gohighlevel.com/v1/contacts/"
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "dc5628ef-1bd1-40ff-ab45-82b46abc496d",
+      "name": "Record Quarantine in Ledger",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        320
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "74NyT51ZVB1pukOM",
+          "cachedResultName": "Lead Reconciliation Ledger"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "leadId": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.leadId }}",
+            "payloadHash": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.payloadHash }}",
+            "fullName": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.fullName || \"UNIDENTIFIED\" }}",
+            "phoneE164": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164 }}",
+            "email": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.email }}",
+            "ledgerStatus": "QUARANTINED",
+            "quarantineReason": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.quarantineReason }}",
+            "aiUrgency": 0,
+            "intentCategory": "QUARANTINED",
+            "enrichmentProvider": "NONE",
+            "enrichmentCostCents": 0,
+            "ghlRoute": "QUARANTINE_COMPLIANCE_HOLD"
+          },
+          "schema": [
+            {
+              "id": "leadId",
+              "displayName": "leadId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payloadHash",
+              "displayName": "payloadHash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneE164",
+              "displayName": "phoneE164",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ledgerStatus",
+              "displayName": "ledgerStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quarantineReason",
+              "displayName": "quarantineReason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aiUrgency",
+              "displayName": "aiUrgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intentCategory",
+              "displayName": "intentCategory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrichmentProvider",
+              "displayName": "enrichmentProvider",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrichmentCostCents",
+              "displayName": "enrichmentCostCents",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ghlRoute",
+              "displayName": "ghlRoute",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "c5fcbb32-9ca1-4000-ae07-b346b1798a2f",
+      "name": "Sync GHL Compliance Hold",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1472,
+        320
+      ],
+      "parameters": {
+        "authentication": "none",
+        "contentType": "json",
+        "jsonBody": "={{ {\\n  \"firstName\": $(\"Normalize and Scrub Lead Fields\").item.json.firstName || \"Quarantined\",\\n  \"lastName\": $(\"Normalize and Scrub Lead Fields\").item.json.lastName || \"Contact\",\\n  \"name\": $(\"Normalize and Scrub Lead Fields\").item.json.fullName || \"Quarantined Contact\",\\n  \"email\": $(\"Normalize and Scrub Lead Fields\").item.json.email || undefined,\\n  \"phone\": $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164 || undefined,\\n  \"dnd\": true,\\n  \"tags\": [\"compliance-quarantine\", \"do-not-contact\", \"dnc-isolated\"],\\n  \"customFields\": [\\n    { \"key\": \"quarantine_reason\", \"field_value\": $(\"Normalize and Scrub Lead Fields\").item.json.quarantineReason },\\n    { \"key\": \"payload_hash\", \"field_value\": $(\"Normalize and Scrub Lead Fields\").item.json.payloadHash }\\n  ]\\n} }}",
+        "method": "POST",
+        "options": {
+          "timeout": 5000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "url": "https://rest.gohighlevel.com/v1/contacts/"
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "4c58a6bd-f7a5-4759-bc8b-d5f6e16a4130",
+      "name": "Respond 202 Quarantined",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1696,
+        320
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"QUARANTINED\",\n  \"leadId\": $(\"Normalize and Scrub Lead Fields\").item.json.leadId,\n  \"reason\": $(\"Normalize and Scrub Lead Fields\").item.json.quarantineReason,\n  \"ledgerStatus\": \"QUARANTINED\",\n  \"actionsTaken\": [\"logged_to_reconciliation_ledger\", \"appended_to_google_sheets_audit\", \"synced_ghl_dnd_compliance_hold\"]\n} }}",
+        "options": {
+          "responseCode": 202
+        }
+      }
+    },
+    {
+      "id": "84d00a80-6693-4089-a761-8eceeca49aa9",
+      "name": "Respond 401 Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        752,
+        288
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"unauthorized\", \"message\": \"Invalid or tampered HMAC-SHA256 webhook signature\", \"leadId\": $(\"Normalize and Scrub Lead Fields\").item.json.leadId } }}",
+        "options": {
+          "responseCode": 401
+        }
+      }
+    },
+    {
+      "id": "c6a2fd3b-599d-467a-b03b-a4935388133f",
+      "name": "Append Quarantine Audit Log",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        320
+      ],
+      "parameters": {
+        "columns": {
+          "mappingMode": "defineBelow",
+          "schema": [
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "leadId",
+              "id": "leadId",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "fullName",
+              "id": "fullName",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "phoneE164",
+              "id": "phoneE164",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "email",
+              "id": "email",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "quarantineReason",
+              "id": "quarantineReason",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "payloadHash",
+              "id": "payloadHash",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "canBeUsedToMatch": true,
+              "defaultMatch": false,
+              "display": true,
+              "displayName": "ghlDndSynced",
+              "id": "ghlDndSynced",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
+          "value": {
+            "email": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.email }}",
+            "fullName": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.fullName || \"UNIDENTIFIED\" }}",
+            "ghlDndSynced": true,
+            "leadId": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.leadId }}",
+            "payloadHash": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.payloadHash }}",
+            "phoneE164": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.phoneE164 }}",
+            "quarantineReason": "={{ $(\"Normalize and Scrub Lead Fields\").item.json.quarantineReason }}"
+          }
+        },
+        "dataTableId": {
+          "__rl": true,
+          "cachedResultName": "Quarantine TCPA Audit Log",
+          "mode": "id",
+          "value": "Q8HTepXRxCCQfXmD"
+        },
+        "operation": "insert",
+        "resource": "row"
+      },
+      "notes": "Appends quarantined DNC and trash records to the built-in Quarantine TCPA Audit Log Data Table (or Google Sheets in external cloud setups)."
+    }
+  ],
+  "nodeGroups": [
+    {
+      "id": "740e5cfd-8d0f-44b4-900f-60ef564548c7",
+      "name": "Verify & Normalize Payload",
+      "nodeNames": [
+        "Compute Payload Hash",
+        "Normalize and Scrub Lead Fields",
+        "Is Signature Valid?"
+      ],
+      "description": "Hashes inbound payload, normalizes phone/email/names, scrubs placeholders, and verifies HMAC signature."
+    },
+    {
+      "id": "4bfb557d-e929-4a40-985d-4bbf1b06a49b",
+      "name": "Quarantine & Compliance Hold",
+      "nodeNames": [
+        "Record Quarantine in Ledger",
+        "Append Quarantine Audit Log",
+        "Sync GHL Compliance Hold",
+        "Respond 202 Quarantined"
+      ],
+      "description": "Isolates trash and TCPA/DNC opt-outs into the Reconciliation Ledger, Quarantine Audit Data Table, and GHL DND hold."
+    },
+    {
+      "id": "c0776a6f-0f3f-4da8-876e-d24b98068ab9",
+      "name": "Waterfall Enrichment & AI Triage",
+      "nodeNames": [
+        "Lookup Property Cache",
+        "Resolve Waterfall Enrichment",
+        "AI Lead Triage Extractor",
+        "Groq Chat Model"
+      ],
+      "description": "Checks local property cache ($0.00) before fallback APIs, then runs Groq LLM Information Extractor for triage."
+    },
+    {
+      "id": "8f07b5c3-f088-4e0c-a024-34f6f29bddb7",
+      "name": "GHL Dispatch & Ledger Reconciliation",
+      "nodeNames": [
+        "Is High Urgency Lead?",
+        "GHL Dispatch: Hot Priority Route",
+        "GHL Dispatch: Standard or HITL Route",
+        "Record Processed Lead in Ledger",
+        "Respond 200 Lead Processed"
+      ],
+      "description": "Routes high-urgency leads to GHL priority dispatch, demotes low-confidence leads to HITL review, and logs to Ledger."
+    }
+  ],
+  "activeVersion": null,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  }
+}

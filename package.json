@@ -1,0 +1,21 @@
+{
+  "name": "resilient-lead-pipeline",
+  "version": "2.0.0",
+  "description": "Enterprise-grade lead ingestion, deduplication, waterfall enrichment, and CRM dispatch engine",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts",
+    "start": "node --experimental-strip-types src/index.ts"
+  },
+  "keywords": [
+    "lead-pipeline",
+    "n8n",
+    "entity-resolution",
+    "deduplication",
+    "data-hygiene",
+    "gohighlevel",
+    "etl"
+  ],
+  "author": "",
+  "license": "MIT"
+}
