@@ -1,7 +1,7 @@
 # Data Contracts & Invariants Specification
 
 ## 1. Overview
-This document defines the strict, typed data contracts for **Resilient Lead Pipeline & GHL Centralization Hub** (Phase 3). 
+This document defines the strict, typed data contracts for **Resilient Lead Pipeline & GHL Centralization Hub**. 
 It resolves the defects identified in the legacy Python v1 pipeline:
 - No loose tuple guessing or untyped returns.
 - Shared definitions of empty/invalid placeholders (`"idk"`, `"n/a"`, `"none"`, `""`, `null`).

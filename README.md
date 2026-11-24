@@ -2,7 +2,11 @@
 
 An event-driven lead ingestion and data integrity engine built with **n8n** and **TypeScript**. 
 
-This system serves as **Phase 3** of the roofing lead pipeline architecture, succeeding the [Phase 1 Batch Python Engine](https://github.com/bagguattee/roofing-lead-pipeline) and the [Phase 2 Make.com/GHL Automations](https://github.com/bagguattee/automation-workflows). It transitions the pipeline from batch CSV processing to a real-time event architecture featuring cryptographic payload validation, deterministic compliance gates, waterfall property cache lookups, cognitive triage via Groq LLM (`openai/gpt-oss-120b`), and a two-sided reconciliation ledger that guarantees zero untracked leads.
+It provides an end-to-end production event architecture featuring cryptographic payload validation, deterministic compliance gates, waterfall property cache lookups, cognitive triage via Groq LLM (`openai/gpt-oss-120b`), and a two-sided reconciliation ledger that guarantees zero untracked leads. It integrates directly with GoHighLevel to automate priority routing and compliance hold enforcement.
+
+Companion systems:
+- [Batch Python Data Cleansing & Entity Resolution Engine](https://github.com/bagguattee/roofing-lead-pipeline)
+- [Multi-Channel CRM Automation Workflows](https://github.com/bagguattee/automation-workflows)
 
 ---
 
