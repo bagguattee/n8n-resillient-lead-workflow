@@ -22,6 +22,8 @@ This pipeline solves all three through explicit architectural separation: **dete
 
 The production workflow ([`resilient-lead-pipeline-ghl.json`](n8n/workflows/resilient-lead-pipeline-ghl.json)) runs 19 purpose-built nodes organized into 4 distinct architectural groups:
 
+![n8n 19-Node Resilient Workflow Canvas](assets/screenshots/workflow-canvas.jpg)
+
 ```
                       [Inbound Lead Webhook] (POST /webhook/lead-ingest)
                                 │
@@ -94,6 +96,8 @@ The workflow was verified live against 4 real-world test cases on a dedicated n8
 ### Table 1: `Lead Reconciliation Ledger` (Total Master Audit)
 Every incoming webhook is logged with its payload SHA-256 digest, enrichment cost, and CRM route:
 
+![n8n Lead Reconciliation Ledger Live Table](assets/screenshots/reconciliation-ledger.png)
+
 | Lead ID | Full Name | Contact Cleaned | Status | Urgency | Intent Category | Cost | CRM Disposition |
 |---|---|---|---|---|---|---|---|
 | `LEAD_2026_001` | Marcus Vance | `+13035550192` / `marcus.vance@gmail.com` | **`PROCESSED`** | 5 / 5 | `IMMEDIATE_STORM_DAMAGE` | \$0.00 (Cache) | Hot Priority Dispatch |
@@ -106,6 +110,8 @@ $$\text{Total Received (4)} = \text{Processed (2)} + \text{Quarantined (2)} + \t
 Discrepancy: **0 leads**.
 
 ### Table 2: `Quarantine TCPA Audit Log` (Legal Defense Record)
+
+![n8n Quarantine TCPA Audit Log Live Table](assets/screenshots/quarantine-audit-log.png)
 
 | Lead ID | Full Name | Identifier | Quarantine Trigger Reason | GHL DND Synced |
 |---|---|---|---|---|
