@@ -26,7 +26,7 @@ This pipeline solves all three through explicit architectural separation: **dete
 
 The production workflow ([`resilient-lead-pipeline-ghl.json`](n8n/workflows/resilient-lead-pipeline-ghl.json)) runs 19 purpose-built nodes organized into 4 distinct architectural groups:
 
-![n8n 19-Node Resilient Workflow Canvas](assets/screenshots/workflow-canvas.jpg)
+![n8n 19-Node Resilient Workflow Canvas](assets/screenshots/workflow-canvas.png)
 
 ```
                       [Inbound Lead Webhook] (POST /webhook/lead-ingest)
